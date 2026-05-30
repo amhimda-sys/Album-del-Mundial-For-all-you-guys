@@ -1,0 +1,773 @@
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--font-sans);background:transparent;font-size:14px;}
+#app{max-width:700px;margin:0 auto;padding:10px;}
+.screen{display:none;}.screen.active{display:block;}
+/* HOME */
+#home{text-align:center;padding:16px 0;}
+.home-title{font-size:30px;font-weight:600;color:var(--color-text-primary);}
+.home-sub{font-size:13px;color:var(--color-text-secondary);margin-bottom:16px;}
+.stats-row{display:flex;gap:10px;justify-content:center;margin:16px 0;}
+.stat-box{background:var(--color-background-secondary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-lg);padding:10px 16px;min-width:80px;}
+.stat-num{font-size:22px;font-weight:600;color:#c8a415;}
+.stat-lab{font-size:11px;color:var(--color-text-secondary);}
+.btn-gold{background:#c8a415;color:#fff;border:none;padding:13px 28px;border-radius:var(--border-radius-lg);font-size:15px;font-weight:500;cursor:pointer;margin:5px;transition:transform .1s;}
+.btn-gold:active{transform:scale(.97);}
+.btn-ghost{background:var(--color-background-secondary);border:0.5px solid var(--color-border-secondary);color:var(--color-text-primary);padding:13px 28px;border-radius:var(--border-radius-lg);font-size:15px;cursor:pointer;margin:5px;}
+/* SOBRE */
+#sobre{text-align:center;padding:10px 0;}
+.sobre-wrap{position:relative;width:160px;height:240px;margin:0 auto 12px;cursor:pointer;user-select:none;}
+.sobre-body{position:absolute;bottom:0;left:0;right:0;height:224px;background:linear-gradient(150deg,#1560bd,#0a3a7a);border-radius:10px;border:2px solid #2a7fd4;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;}
+.sobre-body::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(45deg,rgba(255,255,255,.03) 0,rgba(255,255,255,.03) 2px,transparent 2px,transparent 8px);}
+.sobre-flap{position:absolute;top:0;left:0;right:0;height:56px;background:#0e4494;border-radius:10px 10px 0 0;clip-path:polygon(0 0,100% 0,100% 55%,50% 100%,0 55%);transform-origin:top;transition:transform .5s;border-bottom:2px dashed rgba(255,255,255,.3);display:flex;align-items:flex-start;justify-content:center;padding-top:8px;}
+.sobre-flap.open{transform:rotateX(160deg);}
+.sobre-star{font-size:11px;color:#c8a415;letter-spacing:3px;margin-bottom:6px;}
+.sobre-tit{font-size:12px;color:#fff;font-weight:500;}
+.sobre-logo{font-size:30px;margin:6px 0;}
+.sobre-hint{font-size:12px;color:var(--color-text-secondary);margin-bottom:10px;}
+/* CARDS REVEAL */
+.reveal-grid{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding:8px 0;}
+.cromo-card{width:82px;height:116px;border-radius:8px;overflow:hidden;border:2px solid #c8a415;cursor:default;transform:translateY(20px);opacity:0;transition:transform .35s,opacity .35s,box-shadow .2s;position:relative;flex-shrink:0;}
+.cromo-card.shown{transform:translateY(0);opacity:1;}
+.cromo-card.spec{border-color:#e040fb;}
+.cromo-card.spec::after{content:'★';position:absolute;top:3px;right:4px;color:#e040fb;font-size:11px;text-shadow:0 0 4px #e040fb;}
+.c-top{width:100%;height:58%;display:flex;align-items:center;justify-content:center;font-size:10px;text-align:center;padding:3px;line-height:1.2;}
+.c-flag{font-size:22px;display:block;margin-bottom:2px;}
+.c-bot{padding:3px 4px;background:rgba(0,0,0,.85);height:42%;}
+.c-name{font-size:8.5px;font-weight:500;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.c-team{font-size:7.5px;color:rgba(255,255,255,.6);}
+.c-num{font-size:7px;color:#c8a415;}
+.reveal-btns{margin-top:8px;}
+.btn-paste{background:#27ae60;color:#fff;border:none;padding:11px 24px;border-radius:var(--border-radius-lg);font-size:14px;font-weight:500;cursor:pointer;margin:4px;}
+.btn-more{background:var(--color-background-secondary);color:var(--color-text-primary);border:0.5px solid var(--color-border-secondary);padding:11px 20px;border-radius:var(--border-radius-lg);font-size:14px;cursor:pointer;margin:4px;}
+/* ALBUM */
+#album{padding:0;}
+.alb-header{display:flex;align-items:center;gap:8px;padding:10px 0 12px;}
+.alb-header h2{flex:1;font-size:17px;font-weight:500;}
+.back-btn{background:none;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:5px 10px;font-size:12px;cursor:pointer;color:var(--color-text-secondary);}
+.prog-wrap{height:5px;background:var(--color-background-secondary);border-radius:99px;margin-bottom:4px;overflow:hidden;}
+.prog-fill{height:100%;background:#c8a415;border-radius:99px;transition:width .5s;}
+.prog-txt{font-size:11px;color:var(--color-text-secondary);text-align:right;margin-bottom:12px;}
+/* Album pages nav */
+.page-nav{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.pnav-btn{background:var(--color-background-secondary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:6px 12px;cursor:pointer;font-size:13px;}
+.pnav-btn:disabled{opacity:.4;cursor:default;}
+.pnav-info{flex:1;text-align:center;font-size:12px;color:var(--color-text-secondary);}
+.page-selector{background:var(--color-background-secondary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:4px 8px;font-size:12px;color:var(--color-text-primary);}
+/* Album page display - spread */
+.album-spread{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px;}
+.alb-page{background:#fdf8f0;border-radius:6px;padding:8px;border:0.5px solid var(--color-border-tertiary);min-height:280px;}
+.page-header-label{font-size:9px;font-weight:600;color:rgba(0,0,0,.5);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;text-align:center;}
+.page-group-banner{font-size:10px;font-weight:600;color:rgba(0,0,0,.7);text-align:center;padding:3px;border-radius:4px;margin-bottom:6px;}
+.slots-grid{display:grid;gap:4px;}
+.slots-grid.g3{grid-template-columns:repeat(3,1fr);}
+.slots-grid.g2{grid-template-columns:repeat(2,1fr);}
+.slots-grid.g4{grid-template-columns:repeat(4,1fr);}
+.slot-item{aspect-ratio:.71;border-radius:5px;overflow:hidden;position:relative;border:1px dashed rgba(0,0,0,.2);background:rgba(0,0,0,.04);display:flex;align-items:center;justify-content:center;}
+.slot-item.filled{border:1.5px solid #c8a415;border-style:solid;}
+.slot-item.spec-slot{border-color:#e040fb;}
+.slot-num{font-size:9px;color:rgba(0,0,0,.25);}
+.slot-inner{width:100%;height:100%;display:flex;flex-direction:column;}
+.si-top{flex:1;display:flex;align-items:center;justify-content:center;font-size:9px;text-align:center;padding:2px;line-height:1.2;}
+.si-flag{font-size:16px;display:block;}
+.si-bot{padding:2px 3px;background:rgba(0,0,0,.8);}
+.si-name{font-size:6.5px;font-weight:500;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.si-team{font-size:5.5px;color:rgba(255,255,255,.6);}
+.pasted-anim{animation:pasteAnim .4s ease;}
+@keyframes pasteAnim{0%{transform:scale(1.3) rotate(-4deg);opacity:.5}100%{transform:scale(1) rotate(0);opacity:1}}
+/* Group jump btns */
+.group-jumps{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;}
+.grp-jump-btn{font-size:11px;padding:4px 8px;background:var(--color-background-secondary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-sm);cursor:pointer;color:var(--color-text-primary);}
+/* INTERCAMBIO */
+.trade-stat{font-size:12px;color:var(--color-text-secondary);text-align:center;margin-bottom:12px;}
+.trade-stat b{color:#c8a415;font-size:14px;}
+.ai-card{background:var(--color-background-secondary);border:1.5px solid #888;border-radius:var(--border-radius-lg);padding:16px;text-align:center;margin-bottom:14px;position:relative;}
+.ai-badge{display:inline-block;color:#fff;font-size:11px;font-weight:600;padding:4px 12px;border-radius:99px;letter-spacing:.5px;margin-bottom:8px;}
+.ai-name{font-size:18px;font-weight:600;color:var(--color-text-primary);}
+.ai-sub{font-size:12px;color:var(--color-text-secondary);margin-top:2px;}
+.trade-label{font-size:12px;font-weight:600;color:var(--color-text-primary);text-align:center;margin-bottom:8px;}
+.trade-cost{font-size:13px;color:var(--color-text-secondary);text-align:center;margin:14px 0 6px;}
+.trade-cost b{color:#e0573a;font-size:16px;}
+.trade-msg{background:var(--color-background-secondary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-lg);padding:20px;text-align:center;font-size:14px;color:var(--color-text-primary);line-height:1.5;margin-bottom:14px;}
+.trade-msg small{color:var(--color-text-secondary);font-size:12px;}
+.btn-paste:disabled{background:#999;cursor:default;opacity:.7;}
+</style>
+
+<div id="app">
+<!-- HOME -->
+<div id="home" class="screen active">
+  <div style="font-size:50px;margin-bottom:4px;">🏆</div>
+  <div class="home-title">Mundial 2026</div>
+  <div class="home-sub">Álbum Panini Oficial • 48 Selecciones • USA·CAN·MEX</div>
+  <div class="stats-row">
+    <div class="stat-box"><div class="stat-num" id="h-sobres">1045</div><div class="stat-lab">📦 Sobres</div></div>
+    <div class="stat-box"><div class="stat-num" id="h-col">0</div><div class="stat-lab">🃏 Cromos</div></div>
+    <div class="stat-box"><div class="stat-num" id="h-pct">0%</div><div class="stat-lab">✅ Álbum</div></div>
+    <div class="stat-box"><div class="stat-num" id="h-rep">0</div><div class="stat-lab">🔁 Repes</div></div>
+  </div>
+  <div>
+    <button class="btn-gold" onclick="showSobre()">📦 Abrir Sobre</button>
+    <button class="btn-ghost" onclick="showAlbum()">📖 Ver Álbum</button>
+    <button class="btn-ghost" onclick="showIntercambio()">🔄 Intercambiar con IA</button>
+
+    <button class="btn-ghost" onclick="generarPromo()">🎁 Generar Promo</button>
+    <button class="btn-ghost" onclick="canjearPromo()">🎟️ Canjear Promo</button>
+
+  </div>
+  <div style="font-size:11px;color:var(--color-text-secondary);margin-top:10px;">
+    <span id="h-pages">112 páginas · 740 cromos</span>
+  </div>
+</div>
+
+<!-- SOBRE -->
+<div id="sobre" class="screen">
+  <div id="sp1">
+    <div class="sobre-hint" id="sobre-hint">¡Toca el sobre para abrirlo!</div>
+    <div class="sobre-wrap" onclick="rasgarSobre()" id="sobre-wrap">
+      <div class="sobre-flap" id="sobre-flap"><span style="font-size:9px;color:rgba(255,255,255,.6);letter-spacing:1px;">PANINI</span></div>
+      <div class="sobre-body">
+        <div class="sobre-star">★ ★ ★ ★ ★</div>
+        <div class="sobre-logo">🏆</div>
+        <div class="sobre-tit">MUNDIAL 2026</div>
+        <div style="font-size:9px;color:rgba(255,255,255,.4);margin-top:4px;letter-spacing:1px;">PANINI OFFICIAL</div>
+      </div>
+    </div>
+  </div>
+  <div id="sp2" style="display:none;">
+    <div style="font-size:12px;font-weight:500;margin-bottom:8px;color:var(--color-text-primary);">¡5 nuevos cromos!</div>
+    <div class="reveal-grid" id="reveal-grid"></div>
+    <div class="reveal-btns">
+      <button class="btn-paste" onclick="pegarCromos()">✅ Pegar al álbum</button>
+      <button class="btn-more" id="btn-otro" onclick="showSobre()">📦 Otro sobre</button>
+    </div>
+  </div>
+  <button class="btn-ghost" style="margin-top:10px;padding:8px 16px;font-size:13px;" onclick="showHome()">← Volver</button>
+</div>
+
+<!-- ALBUM -->
+<div id="album" class="screen">
+  <div class="alb-header">
+    <button class="back-btn" onclick="showHome()">← Volver</button>
+    <h2>📖 Álbum Mundial 2026</h2>
+  </div>
+  <div class="prog-wrap"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+  <div class="prog-txt" id="prog-txt">0 / 740 cromos (0%)</div>
+  <div class="group-jumps" id="group-jumps"></div>
+  <div class="page-nav">
+    <button class="pnav-btn" id="btn-prev" onclick="prevPage()">◀</button>
+    <div class="pnav-info" id="pnav-info">Páginas 1-2 de 112</div>
+    <button class="pnav-btn" id="btn-next" onclick="nextPage()">▶</button>
+    <select class="page-selector" id="page-select" onchange="jumpToSpread(this.value)"></select>
+  </div>
+  <div class="album-spread" id="album-spread"></div>
+</div>
+
+<!-- INTERCAMBIO -->
+<div id="intercambio" class="screen">
+  <div class="alb-header">
+    <button class="back-btn" onclick="showHome()">← Volver</button>
+    <h2>🔄 Intercambio con IA</h2>
+  </div>
+  <div id="trade-body"></div>
+</div>
+</div>
+
+<script>
+// ============ DATA ============
+// Teams: [name, flag, color, group, [players...], specialIdx]
+// specialIdx = index in players array of the star player
+const TM = {
+MEX:['México','🇲🇽','#006847','A',['G. Ochoa','S. Giménez','R. Jiménez','E. Álvarez','A. Fidalgo','L. Chávez','L. Romo','J. Vásquez','C. Montes','J. Araujo','O. Pineda','C. Huerta','J. Quiñones','J. Sánchez','D. Lainez'],1],
+RSA:['Sudáfrica','🇿🇦','#007A4D','A',['R. Williams','L. Foster','E. Makgopa','T. Mokoena','T. Mbatha','T. Zwane','R. Mofokeng','S. Sithole','K. Mudau','N. Sibisi','O. Appolis','I. Rayners','A. Modiba','T. Maseko','L. Mofokeng'],1],
+KOR:['Corea del Sur','🇰🇷','#C60C30','A',['K. Seung-gyu','H. Son','K. Min-jae','L. Kang-in','H. Hee-chan','O. Hyeon-gyu','H. In-beom','Y. Hyun-jun','B. Jun-ho','C. Gue-sung','L. Jae-sung','P. Seung-ho','L. Dong-gyeong','J. Castrop','Y. Ho-chang'],1],
+CZE:['Chequia','🇨🇿','#D7141A','A',['M. Kovar','T. Soucek','P. Schick','A. Hlozek','V. Coufal','T. Holes','L. Krejci','M. Sadilek','L. Provod','J. Kuchta','T. Chory','V. Darida','P. Sulc','H. Sochurek','C. Kabongo'],2],
+CAN:['Canadá','🇨🇦','#FF0000','B',['D. St. Clair','A. Davies','J. David','T. Buchanan','S. Eustaquio','J. Osorio','C. Larin','I. Kone','L. Millar','D. Cornelius','A. Johnston','M. Bombito','J. Shaffelburg','M. Flores','M. Crepeau'],1],
+BIH:['Bosnia-Herz.','🇧🇦','#002395','B',['N. Vasilj','E. Demirovic','E. Dzeko','S. Kolasinac','A. Dedic','B. Tahirovic','I. Sunjic','A. Hadziahmetovic','H. Tabakovic','E. Bajraktarevic','T. Muharemovic','D. Hadzikadunic','A. Gigovic','K. Alajbegovic','N. Katic'],1],
+QAT:['Catar','🇶🇦','#8D1B3D','B',['M. Barsham','A. Afif','A. Ali','H. Al-Haydos','K. Boudiaf','A. Madibo','P. Miguel','B. Khoukhi','M. Muntari','S. Soria','A. Hatem','T. Mohammed','E. Júnior','A. Al-Ganehi','M. Mannai'],1],
+SUI:['Suiza','🇨🇭','#FF0000','B',['G. Kobel','G. Xhaka','M. Akanji','B. Embolo','D. Ndoye','S. Widmer','N. Elvedi','R. Freuler','A. Jashari','N. Okafor','R. Vargas','Z. Amdouni','D. Zakaria','F. Rieder','D. Sow'],2],
+BRA:['Brasil','🇧🇷','#009C3B','C',['Alisson','Vinicius Jr.','Neymar Jr.','Raphinha','G. Martinelli','Endrick','Marquinhos','B. Guimarães','Casemiro','L. Paquetá','Bremer','M. Cunha','Wesley','Ederson','L. Pereira'],1],
+MAR:['Marruecos','🇲🇦','#C1272D','C',['Y. Bounou','A. Hakimi','S. Amrabat','B. Díaz','A. El Kaabi','N. Mazraoui','N. Aguerd','B. El Khannouss','I. Saibari','A. Ounahi','N. El Aynaoui','C. Riad','S. Rahimi','A. Bouaddi','A. Ezzalzouli'],1],
+HAI:['Haití','🇭🇹','#00209F','C',['J. Placide','J. Bellegarde','W. Isidor','J. Duverne','D. Nazon','F. Pierrot','D. Etienne Jr.','L. Joseph','A. Pierre','K. Thermoncy','L. Pierre','C. Sainte','D. Simon','R. Providence','Y. Fortune'],1],
+SCO:['Escocia','🏴󠁧󠁢󠁳󠁣󠁴󠁿','#003380','C',['C. Gordon','A. Robertson','S. McTominay','J. McGinn','B. Gilmour','G. Hanley','A. Hickey','S. McKenna','N. Patterson','R. Christie','C. Adams','L. Ferguson','L. Dykes','L. Shankland','K. Tierney'],1],
+USA:['EE.UU.','🇺🇸','#B22234','D',['M. Turner','W. McKennie','G. Reyna','T. Adams','A. Robinson','S. Dest','C. Richards','M. Robinson','A. Freeman','M. Arfsten','J. Scally','M. McKenzie','T. Ream','A. Trusty','M. Freese'],1],
+PAR:['Paraguay','🇵🇾','#D52B1E','D',['A. Silva','M. Almirón','A. Sanabria','J. Enciso','F. Balbuena','R. Alonso','R. Rojas','M. Villasanti','J. Alonso','K. Espinoza','O. Romero','D. Ojeda','L. Barrios','R. Alderete','F. Cubas'],1],
+AUS:['Australia','🇦🇺','#00843D','D',['M. Ryan','M. Leckie','J. Irvine','R. Hrustic','C. Goodwin','M. Duke','T. Nabbout','T. Degenek','K. Rowles','D. Arzani','B. Wright','A. Hrustic','J. Nisbet','S. Jamieson','R. Kuol'],0],
+TUR:['Türkiye','🇹🇷','#E30A17','D',['A. Güneşir','A. Güler','H. Çalhanoğlu','M. Demiral','B. Aktürkoğlu','Z. Çelik','O. Özcan','B. Bardakcı','K. Yıldız','V. Soyuncu','Y. Akgün','C. Bozok','E. Özcan','S. Altay','U. Okay'],1],
+GER:['Alemania','🇩🇪','#000000','E',['M. Neuer','J. Kimmich','F. Wirtz','J. Musiala','K. Havertz','S. Gnabry','A. Rüdiger','N. Schlotterbeck','L. Goretzka','M. Mittelstädt','K. Adeyemi','J. Brandt','L. Klostermann','T. Müller','I. Gündogan'],2],
+CUW:['Curaçao','🇨🇼','#003DA5','E',['D. Rots','L. Bacuna','J. Bacuna','D. Lachman','R. Janga','G. Frederiksen','E. Osepa','C. Metgod','R. Vandersteen','J. Suk','R. Vlijter','K. van der Werff','O. Jubitana','C. Trompet','J. van den Bergh'],1],
+CIV:['Costa de Marfil','🇨🇮','#FF8200','E',['Y. Fofana','F. Kessié','S. Haller','N. Pépé','W. Zaha','M. Gradel','W. Boly','I. Diomande','E. Guessand','G. Kamara','F. Traoré','I. Sangaré','A. Koné','M. Deli','S. Aurier'],1],
+ECU:['Ecuador','🇪🇨','#FFD100','E',['E. Domínguez','M. Caicedo','P. Plata','P. Estupiñán','E. Valencia','A. Cifuentes','C. Gruezo','A. Torres','R. Arreaga','G. Preciado','K. Ibarra','P. Páez','J. Mercado','L. Mena','Ó. Intriago'],1],
+NED:['Países Bajos','🇳🇱','#FF4F00','F',['B. Flekken','V. van Dijk','C. Gakpo','X. Simons','T. Reijnders','D. Dumfries','N. Akè','M. de Ligt','J. Timber','W. Weghorst','D. Malen','F. de Jong','J. de Vrij','D. Blind','B. Koopmeiners'],2],
+JPN:['Japón','🇯🇵','#BC002D','F',['K. Mitoma','H. Ito','D. Kamada','A. Ueda','R. Doan','H. Morita','W. Endo','A. Tanaka','T. Tomiyasu','S. Machino','D. Ito','M. Hayashi','R. Suzuki','J. Maeda','S. Nakayama'],0],
+SWE:['Suecia','🇸🇪','#006AA7','F',['R. Olsen','A. Isak','D. Kulusevski','E. Forsberg','A. Ekdal','O. Svanberg','V. Lindelöf','H. Johansson','K. Olsson','V. Gyökeres','Z. Lustig','L. Augustinsson','I. Nilsson','I. Powel','M. Hjulmark'],1],
+TUN:['Túnez','🇹🇳','#E70013','F',['B. Hassen','N. Slimane','F. Ben Romdhane','A. Maaloul','M. Sassi','C. Talbi','Hannibal','S. Ben Slimane','A. Sfar','E. Laïdouni','M. Drager','H. Mejbri','A. Jelassi','G. Meriah','H. Rafia'],2],
+BEL:['Bélgica','🇧🇪','#EF3340','G',['K. Casteels','K. De Bruyne','R. Lukaku','L. Trossard','J. Doku','T. Meunier','O. Mangala','A. Theate','M. De Cuyper','M. Vranckx','A. Verschaeren','L. Openda','A. Saelemaekers','Y. Carrasco','B. Vertonghen'],1],
+EGY:['Egipto','🇪🇬','#CE1126','G',['M. El Shenawy','M. Salah','M. Mohamed','H. Fathi','A. Elneny','S. Mohsen','A. Hegazi','Kahraba','R. Sobhi','O. Marmoush','B. Kamal','S. Hamdi','A. Abou Ali','T. Ibrahim','A. Hamdi'],1],
+IRN:['Irán','🇮🇷','#239F40','G',['A. Beiranvand','M. Taremi','S. Azmoun','M. Mohammadi','A. Jahanbakhsh','J. Hosseini','E. Ezatolahi','E. Hajsafi','V. Amiri','A. Cheshmi','S. Rezaeian','H. Abdi','M. Torabi','R. Sabouri','M. Pouraliganji'],1],
+NZL:['Nueva Zelanda','🇳🇿','#00247D','G',['O. Sail','C. Wood','M. Gould','C. Simonsen','T. Payne','N. Boxall','T. Just','S. McGlinchey','M. Ingham','B. Old','D. Weston','Z. Schiber','M. Riley','L. Cacace','J. Sail'],1],
+ESP:['España','🇪🇸','#AA151B','H',['U. Simón','L. Yamal','Pedri','Gavi','A. Grimaldo','F. Ruiz','M. Merino','Nacho','N. Williams','Í. Williams','M. Cucurella','D. Carvajal','Á. Morata','M. Zubimendi','A. García'],1],
+CPV:['Cabo Verde','🇨🇻','#003893','H',['K. Mendes','G. Rodrigues','R. Mendes','Stopira','K. Semedo','B. Andrade','A. Loureiro','Djaniny','J. Brito','D. Moreira','J. Pereira','B. Tavares','A. Da Graça','N. Borges','E. Évora'],1],
+KSA:['Arabia Saudita','🇸🇦','#006C35','H',['M. Al-Owais','S. Al-Dawsari','F. Al-Buraikan','A. Al-Bulayhi','A. Al-Ghannam','M. Al-Malki','A. Kanno','H. Al-Amri','A. Al-Hassan','M. Al-Shalhoub','H. Bahebri','A. Al-Aboud','O. Hawsawi','S. Al-Ghannam','Y. Al-Sahafi'],1],
+URU:['Uruguay','🇺🇾','#5EB6E4','H',['S. Rochet','F. Valverde','D. Nuñez','R. Bentancur','M. Ugarte','R. Araújo','G. De Arrascaeta','O. Viña','F. Pellistri','A. Olivera','J. Piquerez','J. Giménez','L. Torreira','I. Urrutia','S. Coates'],1],
+FRA:['Francia','🇫🇷','#002395','I',['M. Maignan','K. Mbappé','A. Griezmann','O. Dembélé','E. Camavinga','A. Tchouaméni','T. Hernández','W. Saliba','I. Konaté','M. Olise','M. Guendouzi','O. Giroud','B. Diallo','Y. Fofana','J. Koundé'],1],
+SEN:['Senegal','🇸🇳','#00853F','I',['É. Mendy','I.G. Gueye','L. Diatta','P.M. Sarr','I. Sarr','L. Camara','I. Ndiaye','B. Diallo','K. Koulibaly','A. Diallo','S. Sabaly','Y. Gueye','S. Kouyaté','A. Diedhiou','M. Kouyaté'],0],
+IRQ:['Iraq','🇮🇶','#CE1126','I',['J. Kassid','M. Ali','H. Ali','A. Radif','A. Mohammed','B. Resan','A. Adel','M. Karrar','O. Hamed','A. Ahmed','A. Bashar','R. Taha','M. Tariq','A. Ibrahim','H. Nasir'],1],
+NOR:['Noruega','🇳🇴','#EF2B2D','I',['R. Nyland','E. Haaland','M. Ødegaard','S. Berge','M. Elyounoussi','K. Thorstvedt','L. Ostigard','K. Ajer','O. Bobb','N. Solbakken','E. Kristiansen','R. Haug','K. Nielsen','Á. Sørloth','C. Borchgrevink'],1],
+ARG:['Argentina','🇦🇷','#74ACDF','J',['E. Martínez','L. Messi','J. Álvarez','A. Mac Allister','R. De Paul','N. Molina','N. Otamendi','L. Martínez','E. Fernández','P. Dybala','Á. Di María','L. Paredes','G. Pezzella','M. Almada','T. Almada'],1],
+ALG:['Argelia','🇩🇿','#006233','J',['R. Mbolhi','R. Mahrez','I. Bennacer','M. Amoura','A. Zerrouki','Y. Atal','Y. Belaïli','A. Mandi','H. Benali','Y. Brahimi','S. Benzia','S. Drid','Z. Khocholef','S. Mekkour','A. Taibi'],1],
+AUT:['Austria','🇦🇹','#ED2939','J',['P. Pentz','M. Sabitzer','M. Arnautovic','M. Gregoritsch','C. Baumgartner','P. Wimmer','A. Weimann','K. Laimer','D. Alaba','S. Kalajdzic','K. Danso','N. Seiwald','L. Bonmann','T. Prass','A. Querfeld'],1],
+JOR:['Jordania','🇯🇴','#007A3D','J',['Y. Al-Maiouf','M. Al-Taamari','O. Al-Somah','Y. Al-Yassin','B. Faisal','M. Shelbaieh','A. Natsheh','M. Ahmad','Y. Al-Naber','A. Abu Zarga','O. Al-Azraq','M. Bani Attiah','H. Bani Yaseen','Z. Al-Werikat','W. Sukar'],1],
+POR:['Portugal','🇵🇹','#006600','K',['D. Costa','C. Ronaldo','B. Silva','R. Leão','J. Félix','Vitinha','D. Dalot','J. Cancelo','R. Neves','B. Fernandes','G. Inácio','D. Jota','C. Neto','G. Ramos','R. Horta'],1],
+COD:['Congo RD','🇨🇩','#007FFF','K',['K. Kabangu','T. Bongonda','C. Bakambu','C. Mbemba','O. Balele','G. Kakuta','C. Tshimanga','C. Tino','M. Bope','M. Mpoku','O. Ngoy','E. Kayembe','J. Luyindama','P. Onuachu','D. Mbokani'],1],
+UZB:['Uzbekistán','🇺🇿','#1EB53A','K',['U. Nishonov','E. Shomurodov','J. Masharipov','A. Fayzullayev','U. Kholmatov','K. Sobirov','J. Ashurmatov','A. Jaloliddinov','B. Yusupov','B. Djalilov','S. Tursunov','O. Alibaev','A. Nematov','D. Nishonov','A. Hamrobekov'],1],
+COL:['Colombia','🇨🇴','#FCD116','K',['D. Ospina','L. Díaz','J. Arias','R. Borré','Y. Cuesta','J. Mojica','J. Lucumí','M. Uribe','J. Córdoba','L. Sinisterra','J. Cuadrado','C. Cuesta','A. Mosquera','C. Caicedo','D. Ruiz'],1],
+ENG:['Inglaterra','🏴󠁧󠁢󠁥󠁮󠁧󠁿','#003399','L',['J. Pickford','J. Bellingham','B. Saka','P. Foden','H. Kane','T. Alexander-Arnold','H. Maguire','D. Rice','C. Gallagher','E. Eze','A. Gordon','K. Mainoo','K. Walker','M. Guéhi','I. Maatsen'],1],
+CRO:['Croacia','🇭🇷','#FF0000','L',['D. Livaković','L. Modrić','M. Kovačić','J. Gvardiol','A. Kramarić','B. Sosa','B. Šutalo','L. Majer','M. Brozović','M. Budimir','M. Pašalić','I. Perišić','M. Orsić','L. Juranović','T. Sučić'],1],
+GHA:['Ghana','🇬🇭','#006B3F','L',['J. Owusu-Agyeman','M. Kudus','A. Semenyo','A. Salisu','F. Fatawu','J. Ayew','A. Abdul Samed','B. Rahman','P. Lamptey','L. Paintsil','O. Boateng','D. Asiedu','T. Asante','I. Agyeman','A. Benson'],1],
+PAN:['Panamá','🇵🇦','#DA121A','L',['L. Mejía','A. Godoy','É. Murillo','R. Davis','C. Austin','A. Fajardo','A. Carrasquilla','I. Cummings','M. Baloy','E. Torres','J. Anderson','R. Córdoba','A. Pimentel','J. Quintero','H. Tejada'],1],
+};
+
+// Group order
+const GRPS = ['A','B','C','D','E','F','G','H','I','J','K','L'];
+const GRP_TEAMS = {
+  A:['MEX','RSA','KOR','CZE'], B:['CAN','BIH','QAT','SUI'],
+  C:['BRA','MAR','HAI','SCO'], D:['USA','PAR','AUS','TUR'],
+  E:['GER','CUW','CIV','ECU'], F:['NED','JPN','SWE','TUN'],
+  G:['BEL','EGY','IRN','NZL'], H:['ESP','CPV','KSA','URU'],
+  I:['FRA','SEN','IRQ','NOR'], J:['ARG','ALG','AUT','JOR'],
+  K:['POR','COD','UZB','COL'], L:['ENG','CRO','GHA','PAN']
+};
+
+// Build ALL stickers
+let ALL_STICKERS = [];
+let stickerMap = {}; // id -> sticker
+
+// Intro stickers (20)
+const STADIUMS = ['MetLife Stadium','SoFi Stadium','AT&T Stadium','Rose Bowl','Hard Rock Stadium','Levi\'s Stadium','Lincoln Financial','Arrowhead','Azteca','Estadio BBVA','Seattle','BC Place','Allegiant','BMO Field','GEODIS Park','Gillette Stadium'];
+const INTRO_THINGS = ['Portada Oficial','Trofeo FIFA','Presentación','Balón Oficial','Mascota 2026'];
+for(let i=0;i<5;i++) ALL_STICKERS.push({id:`i_${i}`,label:INTRO_THINGS[i],team:'WC',type:'intro',special:false});
+for(let i=0;i<15;i++) ALL_STICKERS.push({id:`st_${i}`,label:STADIUMS[i],team:'WC',type:'stadium',special:false});
+
+// Group header stickers (12×4=48)
+GRPS.forEach(g=>{
+  GRP_TEAMS[g].forEach((tc,idx)=>{
+    ALL_STICKERS.push({id:`g${g}_${idx}`,label:TM[tc][0],team:tc,type:'group_badge',special:false});
+  });
+});
+
+// Team badge stickers (48×6=288)
+// Team player stickers (48×13=624)
+const PLAYERS_PER_TEAM = 13;
+Object.keys(TM).forEach(tc=>{
+  const t = TM[tc];
+  const players = t[4];
+  const starIdx = t[5];
+  // 6 badge stickers
+  ALL_STICKERS.push({id:`${tc}_esc`,label:'Escudo',team:tc,type:'escudo',special:false});
+  ALL_STICKERS.push({id:`${tc}_uni`,label:'Uniforme',team:tc,type:'uniforme',special:false});
+  ALL_STICKERS.push({id:`${tc}_cap`,label:players[0],team:tc,type:'captain',special:false});
+  ALL_STICKERS.push({id:`${tc}_sta`,label:players[starIdx],team:tc,type:'star',special:true});
+  ALL_STICKERS.push({id:`${tc}_sq1`,label:'Selección',team:tc,type:'team_photo',special:false});
+  ALL_STICKERS.push({id:`${tc}_sq2`,label:'Grupo '+t[3],team:tc,type:'group_info',special:false});
+  // 13 player stickers
+  for(let i=0;i<PLAYERS_PER_TEAM;i++){
+    const pname = players[i+2] || players[i % players.length] || '?';
+    ALL_STICKERS.push({id:`${tc}_p${i}`,label:pname,team:tc,type:'player',special:i===starIdx-2});
+  }
+});
+
+ALL_STICKERS.forEach(s=>stickerMap[s.id]=s);
+const TOTAL_S = ALL_STICKERS.length;
+
+// ============ PAGES ============
+let PAGES = [];
+function buildPages(){
+  PAGES=[];
+  // Intro pages (4 pages, 5 stickers each)
+  PAGES.push({title:'Copa del Mundo 2026 🏆',type:'intro',emoji:'🏆',color:'#c8a415',
+    slots: ALL_STICKERS.slice(0,5).map(s=>s.id)});
+  PAGES.push({title:'Estadios 🏟️',type:'intro',emoji:'🏟️',color:'#5b8dee',
+    slots: ALL_STICKERS.slice(5,10).map(s=>s.id)});
+  PAGES.push({title:'Más Estadios 🌎',type:'intro',emoji:'🌎',color:'#5b8dee',
+    slots: ALL_STICKERS.slice(10,15).map(s=>s.id)});
+  PAGES.push({title:'Sede y Sede 🗺️',type:'intro',emoji:'🗺️',color:'#5b8dee',
+    slots: ALL_STICKERS.slice(15,20).map(s=>s.id)});
+  
+  // Group + team pages (12 groups × 9 pages = 108 pages)
+  GRPS.forEach(g=>{
+    const teams = GRP_TEAMS[g];
+    // Group header page (4 stickers = group badges)
+    const gSlots = teams.map((tc,i)=>`g${g}_${i}`);
+    PAGES.push({title:`Grupo ${g}`,type:'group',emoji:'📋',color:'#666',group:g,
+      slots:gSlots});
+    // 2 pages per team
+    teams.forEach(tc=>{
+      const t = TM[tc];
+      PAGES.push({title:t[0]+' — Presentación',type:'team_badge',emoji:t[1],color:t[2],team:tc,
+        slots:[`${tc}_esc`,`${tc}_uni`,`${tc}_cap`,`${tc}_sta`,`${tc}_sq1`,`${tc}_sq2`]});
+      PAGES.push({title:t[0]+' — Jugadores',type:'team_players',emoji:t[1],color:t[2],team:tc,
+        slots:[`${tc}_p0`,`${tc}_p1`,`${tc}_p2`,`${tc}_p3`,`${tc}_p4`,`${tc}_p5`,`${tc}_p6`,`${tc}_p7`]});
+      PAGES.push({title:t[0]+' — Plantel',type:'team_players',emoji:t[1],color:t[2],team:tc,
+        slots:[`${tc}_p8`,`${tc}_p9`,`${tc}_p10`,`${tc}_p11`,`${tc}_p12`]});
+    });
+  });
+}
+buildPages();
+
+// ============ STATE ============
+let STATE = {
+  sobres: 1045,
+  collected: new Set(),
+  dupes: {}, // id -> cantidad de repetidas (tarjetas de intercambio)
+  pending: [],
+  spread: 0, // which spread (0 = pages 1&2)
+  justPasted: new Set()
+};
+
+const SAVE_KEY = 'wc26_state';
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem(SAVE_KEY);
+    if(raw){
+      const d = JSON.parse(raw);
+      STATE.sobres = d.sobres ?? 1045;
+      STATE.collected = new Set(d.collected || []);
+      STATE.dupes = d.dupes || {};
+    }
+  }catch(e){ console.log('[v0] loadState error', e); }
+  updateHomeStats();
+}
+
+function saveState(){
+  try{
+    localStorage.setItem(SAVE_KEY, JSON.stringify({
+      sobres: STATE.sobres,
+      collected: [...STATE.collected],
+      dupes: STATE.dupes,
+      savedAt: Date.now()
+    }));
+  }catch(e){ console.log('[v0] saveState error', e); }
+}
+
+// Persist progress when the tab is closed or hidden, just in case
+window.addEventListener('beforeunload', saveState);
+document.addEventListener('visibilitychange', ()=>{ if(document.hidden) saveState(); });
+
+// ============ HELPERS ============
+function getColor(tc){
+  if(!tc || tc==='WC') return '#5b8dee';
+  return TM[tc] ? TM[tc][2] : '#888';
+}
+function getFlag(tc){
+  if(!tc || tc==='WC') return '🌍';
+  return TM[tc] ? TM[tc][1] : '🏳';
+}
+function getName(tc){
+  if(!tc || tc==='WC') return 'Mundial';
+  return TM[tc] ? TM[tc][0] : tc;
+}
+
+function updateHomeStats(){
+  const n = STATE.collected.size;
+  const pct = Math.round(n/TOTAL_S*100);
+  document.getElementById('h-sobres').textContent = STATE.sobres;
+  document.getElementById('h-col').textContent = n;
+  document.getElementById('h-pct').textContent = pct+'%';
+  const rep = document.getElementById('h-rep');
+  if(rep) rep.textContent = totalDupes();
+}
+
+// ============ SCREENS ============
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function showHome(){updateHomeStats();showScreen('home');}
+function showAlbum(){renderAlbum();showScreen('album');}
+function showSobre(){
+  if(STATE.sobres<=0){alert('¡Sin sobres!');return;}
+  document.getElementById('sp1').style.display='block';
+  document.getElementById('sp2').style.display='none';
+  document.getElementById('sobre-flap').classList.remove('open');
+  document.getElementById('sobre-hint').textContent='¡Toca el sobre para abrirlo!';
+  document.getElementById('sobre-wrap').style.cursor='pointer';
+  showScreen('sobre');
+}
+
+let sobreOpened=false;
+function rasgarSobre(){
+  if(sobreOpened) return;
+  sobreOpened=true;
+  STATE.sobres--;
+  document.getElementById('sobre-wrap').style.cursor='default';
+  document.getElementById('sobre-hint').textContent='Abriendo...';
+  document.getElementById('sobre-flap').classList.add('open');
+  setTimeout(()=>{
+    document.getElementById('sp1').style.display='none';
+    document.getElementById('sp2').style.display='block';
+    generatePendingStickers();
+    renderReveal();
+    const btnOtro = document.getElementById('btn-otro');
+    btnOtro.textContent = STATE.sobres>0 ? `📦 Otro sobre (${STATE.sobres})` : '📦 Sin sobres';
+    btnOtro.disabled = STATE.sobres<=0;
+    sobreOpened=false;
+    saveState();
+    updateHomeStats();
+  },650);
+}
+
+function generatePendingStickers(){
+  const missing = ALL_STICKERS.filter(s=>!STATE.collected.has(s.id));
+  const chosen = new Set();
+  STATE.pending = [];
+  let guard = 0;
+  while(STATE.pending.length<5 && guard<400){
+    guard++;
+    let s;
+    // 70% intenta darte un cromo que te falta; 30% cromo cualquiera (puede salir repetido)
+    if(missing.length>0 && Math.random()<0.7){
+      s = missing[Math.floor(Math.random()*missing.length)];
+    } else {
+      s = ALL_STICKERS[Math.floor(Math.random()*ALL_STICKERS.length)];
+    }
+    if(!chosen.has(s.id)){chosen.add(s.id);STATE.pending.push(s);}
+  }
+}
+
+function renderReveal(){
+  const grid = document.getElementById('reveal-grid');
+  grid.innerHTML='';
+  STATE.pending.forEach((s,i)=>{
+    const tc = s.team;
+    const col = getColor(tc);
+    const flag = getFlag(tc);
+    const isDup = STATE.collected.has(s.id);
+    const div = document.createElement('div');
+    div.className = 'cromo-card' + (s.special?' spec':'');
+    div.innerHTML=`<div class="c-top" style="background:${col}22;border-bottom:1px solid ${col}44"><span class="c-flag">${flag}</span><span style="font-size:7px;color:${col}">${s.type==='player'?'JUGADOR':s.type==='escudo'?'ESCUDO':s.type==='star'?'★ ESTRELLA':s.type==='stadium'?'ESTADIO':'ESPECIAL'}</span></div><div class="c-bot"><div class="c-num">#${ALL_STICKERS.indexOf(s)+1}</div><div class="c-name">${s.label}</div><div class="c-team">${getName(tc)}${isDup?' 🔄':''}</div></div>`;
+    grid.appendChild(div);
+    setTimeout(()=>div.classList.add('shown'),80+i*130);
+  });
+}
+
+function pegarCromos(){
+  STATE.justPasted = new Set();
+  STATE.pending.forEach(s=>{
+    if(STATE.collected.has(s.id)){
+      // ya lo tienes -> se guarda como repetida (tarjeta de intercambio)
+      STATE.dupes[s.id] = (STATE.dupes[s.id]||0)+1;
+    } else {
+      STATE.collected.add(s.id);
+      STATE.justPasted.add(s.id);
+    }
+  });
+  STATE.pending=[];
+  saveState();
+  showAlbum();
+  setTimeout(()=>STATE.justPasted.clear(),1000);
+}
+
+function totalDupes(){
+  return Object.values(STATE.dupes).reduce((a,b)=>a+b,0);
+}
+
+// ============ ALBUM RENDERING ============
+let currentSpread = 0;
+const TOTAL_SPREADS = Math.ceil(PAGES.length/2);
+
+function renderAlbum(){
+  const n = STATE.collected.size;
+  const pct = Math.round(n/TOTAL_S*100);
+  document.getElementById('prog-fill').style.width=pct+'%';
+  document.getElementById('prog-txt').textContent=`${n} / ${TOTAL_S} cromos (${pct}%)`;
+  
+  // Group jump buttons
+  const gj = document.getElementById('group-jumps');
+  if(!gj.children.length){
+    GRPS.forEach(g=>{
+      const btn = document.createElement('button');
+      btn.className='grp-jump-btn';
+      btn.textContent=`Gr. ${g}`;
+      btn.onclick=()=>{jumpToGroup(g);};
+      gj.appendChild(btn);
+    });
+    const b0 = document.createElement('button');
+    b0.className='grp-jump-btn';
+    b0.textContent='Intro';
+    b0.onclick=()=>{currentSpread=0;renderSpread();};
+    gj.insertBefore(b0,gj.firstChild);
+  }
+  
+  // Populate page selector
+  const sel = document.getElementById('page-select');
+  if(!sel.children.length){
+    for(let i=0;i<TOTAL_SPREADS;i++){
+      const opt = document.createElement('option');
+      opt.value=i;
+      opt.textContent=`Pág ${i*2+1}-${Math.min(i*2+2,PAGES.length)}`;
+      sel.appendChild(opt);
+    }
+  }
+  
+  renderSpread();
+}
+
+function jumpToGroup(g){
+  const idx = PAGES.findIndex(p=>p.type==='group'&&p.group===g);
+  if(idx>=0){currentSpread=Math.floor(idx/2);renderSpread();}
+}
+
+function jumpToSpread(v){currentSpread=parseInt(v);renderSpread();}
+function prevPage(){if(currentSpread>0){currentSpread--;renderSpread();}}
+function nextPage(){if(currentSpread<TOTAL_SPREADS-1){currentSpread++;renderSpread();}}
+
+function renderSpread(){
+  const container = document.getElementById('album-spread');
+  container.innerHTML='';
+  document.getElementById('btn-prev').disabled=currentSpread===0;
+  document.getElementById('btn-next').disabled=currentSpread>=TOTAL_SPREADS-1;
+  document.getElementById('pnav-info').textContent=`Páginas ${currentSpread*2+1}–${Math.min(currentSpread*2+2,PAGES.length)} de ${PAGES.length}`;
+  const sel = document.getElementById('page-select');
+  if(sel) sel.value=currentSpread;
+  
+  const p1 = PAGES[currentSpread*2];
+  const p2 = PAGES[currentSpread*2+1];
+  
+  if(p1) container.appendChild(buildPageEl(p1,currentSpread*2+1));
+  if(p2) container.appendChild(buildPageEl(p2,currentSpread*2+2));
+  else {
+    const empty = document.createElement('div');
+    empty.className='alb-page';
+    container.appendChild(empty);
+  }
+}
+
+function buildPageEl(page, pageNum){
+  const div = document.createElement('div');
+  div.className='alb-page';
+  
+  // Header
+  const hdr = document.createElement('div');
+  hdr.className='page-group-banner';
+  hdr.style.background=(page.color||'#888')+'22';
+  hdr.style.color=page.color||'#888';
+  hdr.textContent=`${page.emoji} ${page.title}`;
+  div.appendChild(hdr);
+  
+  // Slots
+  const slots = page.slots || [];
+  const grid = document.createElement('div');
+  const cols = slots.length<=4?2:3;
+  grid.className=`slots-grid g${cols}`;
+  
+  slots.forEach((sid,i)=>{
+    const s = stickerMap[sid];
+    const filled = STATE.collected.has(sid);
+    const isNew = STATE.justPasted.has(sid);
+    const item = document.createElement('div');
+    item.className='slot-item'+(filled?' filled':'')+(s&&s.special&&filled?' spec-slot':'');
+    
+    if(filled && s){
+      const tc = s.team;
+      const col = getColor(tc);
+      const flag = getFlag(tc);
+      const inner = document.createElement('div');
+      inner.className='slot-inner'+(isNew?' pasted-anim':'');
+      const typeLabel = s.type==='star'?'⭐':s.type==='escudo'?'🛡️':s.type==='captain'?'©':s.type==='stadium'?'🏟️':s.type==='uniforme'?'👕':s.type==='player'?flag:flag;
+      inner.innerHTML=`<div class="si-top" style="background:${col}22">${typeLabel==='⭐'||typeLabel==='🛡️'||typeLabel==='👕'||typeLabel==='🏟️'?`<div><span style="font-size:14px">${typeLabel}</span><br><span style="font-size:6px;color:${col}">${s.type==='star'?'★ ESTRELLA':s.type==='escudo'?'ESCUDO':s.type==='uniforme'?'UNIFORME':s.type==='stadium'?'ESTADIO':'FOTO'}</span></div>`:typeLabel}</div><div class="si-bot"><div class="si-name">${s.label}</div><div class="si-team">${getName(tc)}</div></div>`;
+      item.appendChild(inner);
+    } else {
+      const num = document.createElement('span');
+      num.className='slot-num';
+      num.textContent = ALL_STICKERS.findIndex(st=>st.id===sid)+1 || '?';
+      item.appendChild(num);
+    }
+    grid.appendChild(item);
+  });
+  div.appendChild(grid);
+  
+  // Page number
+  const pgn = document.createElement('div');
+  pgn.style.cssText='font-size:9px;color:rgba(0,0,0,.3);text-align:center;margin-top:6px;';
+  pgn.textContent=pageNum;
+  div.appendChild(pgn);
+  
+  return div;
+}
+
+// ============ INTERCAMBIO CON IA ============
+// give:[min,max] cromos que te ofrece | costPerCard: repetidas por cromo
+// allowSpecial: puede ofrecer estrellas/especiales | weight: prob. de que te toque
+const AI_LEVELS = [
+  {key:'novato',       name:'Novato',     emoji:'🐣', color:'#9e9e9e', give:[1,1], costPerCard:1, allowSpecial:false, weight:36},
+  {key:'amateur',      name:'Amateur',    emoji:'🎽', color:'#4caf50', give:[1,2], costPerCard:1, allowSpecial:false, weight:28},
+  {key:'normal',       name:'Normal',     emoji:'⚽', color:'#2196f3', give:[2,2], costPerCard:2, allowSpecial:false, weight:20},
+  {key:'professional', name:'Profesional',emoji:'🏅', color:'#c8a415', give:[2,3], costPerCard:2, allowSpecial:true,  weight:11},
+  {key:'god',          name:'GOD',        emoji:'👑', color:'#e040fb', give:[3,3], costPerCard:3, allowSpecial:true,  weight:5}
+];
+const AI_NAMES = ['Carlos','Ana','Luca','Sofía','Diego','Mia','Hiro','Omar','Leo','Nina','Pablo','Yuki','Kofi','Sara','Mateo','Bruno','Ivan','Lía'];
+
+let currentTrade = null;
+
+function rndRange(a,b){return a+Math.floor(Math.random()*(b-a+1));}
+
+function pickAILevel(){
+  const total = AI_LEVELS.reduce((a,l)=>a+l.weight,0);
+  let r = Math.random()*total;
+  for(const l of AI_LEVELS){ if(r<l.weight) return l; r-=l.weight; }
+  return AI_LEVELS[0];
+}
+
+function makeOffer(){
+  const lvl = pickAILevel();
+  const name = AI_NAMES[Math.floor(Math.random()*AI_NAMES.length)];
+  const missing = ALL_STICKERS.filter(s=>!STATE.collected.has(s.id));
+  let pool = lvl.allowSpecial ? missing : missing.filter(s=>!s.special);
+  if(pool.length===0) pool = missing; // si sólo quedan especiales, permítelos
+  const give = Math.min(rndRange(lvl.give[0],lvl.give[1]), pool.length);
+  const offered = [];
+  const used = new Set();
+  let g=0;
+  while(offered.length<give && g<300){
+    g++;
+    const s = pool[Math.floor(Math.random()*pool.length)];
+    if(!used.has(s.id)){used.add(s.id);offered.push(s);}
+  }
+  return {lvl,name,offered,cost:offered.length*lvl.costPerCard};
+}
+
+function tradeCromoHTML(s){
+  const tc=s.team,col=getColor(tc),flag=getFlag(tc);
+  const typeTxt = s.type==='player'?'JUGADOR':s.type==='escudo'?'ESCUDO':s.type==='star'?'★ ESTRELLA':s.type==='stadium'?'ESTADIO':s.type==='uniforme'?'UNIFORME':s.type==='captain'?'CAPITÁN':'ESPECIAL';
+  return `<div class="cromo-card ${s.special?'spec':''} shown"><div class="c-top" style="background:${col}22;border-bottom:1px solid ${col}44"><span class="c-flag">${flag}</span><span style="font-size:7px;color:${col}">${typeTxt}</span></div><div class="c-bot"><div class="c-num">#${ALL_STICKERS.indexOf(s)+1}</div><div class="c-name">${s.label}</div><div class="c-team">${getName(tc)}</div></div></div>`;
+}
+
+function showIntercambio(){
+  currentTrade = makeOffer();
+  renderTrade();
+  showScreen('intercambio');
+}
+
+function nuevoRival(){
+  currentTrade = makeOffer();
+  renderTrade();
+}
+
+function renderTrade(){
+  const body = document.getElementById('trade-body');
+  const dupes = totalDupes();
+
+  if(!currentTrade || currentTrade.offered.length===0){
+    body.innerHTML = `<div class="trade-msg">🎉 ¡Este jugador no tiene cromos nuevos para ti!<br><small>Quizá ya casi completaste el álbum.</small></div>
+      <div style="text-align:center"><button class="btn-more" onclick="nuevoRival()">🔄 Buscar otro jugador</button></div>`;
+    return;
+  }
+
+  const lvl = currentTrade.lvl;
+  const cards = currentTrade.offered.map(tradeCromoHTML).join('');
+  const canAfford = dupes >= currentTrade.cost;
+  const hint = dupes===0 ? '<div class="trade-stat" style="color:#e0573a">Abre sobres para conseguir repetidas y poder intercambiar.</div>' : '';
+
+  body.innerHTML = `
+    <div class="trade-stat">🔁 Tus tarjetas de intercambio (repetidas): <b>${dupes}</b></div>
+    ${hint}
+    <div class="ai-card" style="border-color:${lvl.color}">
+      <div class="ai-badge" style="background:${lvl.color}">${lvl.emoji} ${lvl.name}</div>
+      <div class="ai-name">${currentTrade.name}</div>
+      <div class="ai-sub">quiere intercambiar contigo</div>
+    </div>
+    <div class="trade-label">Te ofrece:</div>
+    <div class="reveal-grid">${cards}</div>
+    <div class="trade-cost">A cambio de <b>${currentTrade.cost}</b> de tus repetidas</div>
+    <div class="reveal-btns" style="text-align:center">
+      <button class="btn-paste" onclick="aceptarTrade()" ${canAfford?'':'disabled'}>${canAfford?'✅ Aceptar trato':'❌ Te faltan repetidas'}</button>
+      <button class="btn-more" onclick="nuevoRival()">🔄 Otro jugador</button>
+    </div>`;
+}
+
+function consumeDupes(n){
+  const ids = [];
+  Object.keys(STATE.dupes).forEach(id=>{ for(let i=0;i<STATE.dupes[id];i++) ids.push(id); });
+  // baraja para tomar repetidas al azar
+  for(let i=ids.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[ids[i],ids[j]]=[ids[j],ids[i]];}
+  for(let k=0;k<n && k<ids.length;k++){
+    const id=ids[k];
+    STATE.dupes[id]--;
+    if(STATE.dupes[id]<=0) delete STATE.dupes[id];
+  }
+}
+
+function aceptarTrade(){
+  if(!currentTrade) return;
+  if(totalDupes() < currentTrade.cost) return;
+  consumeDupes(currentTrade.cost);
+  STATE.justPasted = new Set();
+  currentTrade.offered.forEach(s=>{ STATE.collected.add(s.id); STATE.justPasted.add(s.id); });
+  const ganados = currentTrade.offered.length;
+  saveState();
+  updateHomeStats();
+  const body = document.getElementById('trade-body');
+  body.innerHTML = `<div class="trade-msg">✅ ¡Trato hecho!<br>Conseguiste <b>${ganados}</b> cromo(s) nuevo(s) para tu álbum.<br><small>Te quedan ${totalDupes()} repetidas.</small></div>
+    <div style="text-align:center">
+      <button class="btn-paste" onclick="showAlbum()">📖 Ver álbum</button>
+      <button class="btn-more" onclick="nuevoRival()">🔄 Otro intercambio</button>
+    </div>`;
+  setTimeout(()=>STATE.justPasted.clear(),1500);
+}
+
+
+// ============ PROMO CODES (LÍMITE DIARIO) ============
+const PROMO_KEY = 'wc26_promo_last_date';
+
+function getTodayStr() {
+  const d = new Date();
+  return d.toISOString().split('T')[0]; // YYYY-MM-DD
+}
+
+function generarPromo(){
+  const code = 'WC26-' + Math.random().toString(36).substring(2,10).toUpperCase();
+  localStorage.setItem('wc26_lastpromo', code);
+  navigator.clipboard.writeText(code).then(() => {
+    alert('🎁 Código promocional generado y copiado:\n\n' + code + '\n\nSolo puedes canjear 1 código al día. ¡Vuelve mañana por otro!');
+  }).catch(() => {
+    alert('🎁 Código promocional: ' + code + '\n\n(No se pudo copiar automáticamente)');
+  });
+}
+
+function canjearPromo(){
+  const savedCode = localStorage.getItem('wc26_lastpromo');
+  const lastClaimDate = localStorage.getItem(PROMO_KEY);
+  const today = getTodayStr();
+
+  if(!savedCode){
+    alert('❌ No hay ningún código promocional activo. Primero genera uno con "Generar Promo".');
+    return;
+  }
+
+  if(lastClaimDate === today){
+    alert('⏰ Ya has canjeado un código hoy. ¡Vuelve mañana para obtener otro sobre gratuito!');
+    return;
+  }
+
+  const code = prompt('🎟️ Introduce el código promocional:');
+  if(!code) return;
+
+  if(code !== savedCode){
+    alert('❌ Código incorrecto.');
+    return;
+  }
+
+  // ✅ Canje exitoso: dar 1 sobre
+  STATE.sobres++;
+  localStorage.setItem(PROMO_KEY, today);
+  localStorage.removeItem('wc26_lastpromo'); // eliminar código usado
+  saveState();
+  updateHomeStats();
+
+  alert(`🎉 ¡Código canjeado con éxito!\n\n📦 Has recibido 1 sobre extra.\n💰 Ahora tienes ${STATE.sobres} sobres.\n\n✨ Vuelve mañana por otro código diario.`);
+}
+
+// Init
+loadState();
+</script>
