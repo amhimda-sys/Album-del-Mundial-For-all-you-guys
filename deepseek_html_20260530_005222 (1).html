@@ -91,6 +91,120 @@ body{font-family:var(--font-sans);background:transparent;font-size:14px;}
 .trade-msg{background:var(--color-background-secondary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-lg);padding:20px;text-align:center;font-size:14px;color:var(--color-text-primary);line-height:1.5;margin-bottom:14px;}
 .trade-msg small{color:var(--color-text-secondary);font-size:12px;}
 .btn-paste:disabled{background:#999;cursor:default;opacity:.7;}
+
+/* MODAL PARA REPETIDOS */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.modal-content {
+  background: #1a1a2e;
+  border-radius: 16px;
+  max-width: 90%;
+  max-height: 80%;
+  width: 500px;
+  overflow: auto;
+  padding: 20px;
+  position: relative;
+  border: 2px solid #c8a415;
+}
+.modal-content h3 {
+  color: #c8a415;
+  text-align: center;
+  margin-bottom: 15px;
+  font-size: 18px;
+}
+.modal-close {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #fff;
+}
+.modal-stats {
+  text-align: center;
+  background: #0f0f1a;
+  padding: 10px;
+  border-radius: 12px;
+  margin-bottom: 15px;
+}
+.modal-stats span {
+  color: #c8a415;
+  font-size: 20px;
+  font-weight: bold;
+}
+.repe-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 5px;
+}
+.repe-card {
+  width: 75px;
+  height: 105px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 2px solid #c8a415;
+  position: relative;
+  background: #2a2a3e;
+  cursor: pointer;
+  transition: transform 0.1s, opacity 0.2s;
+}
+.repe-card:hover {
+  transform: scale(1.02);
+}
+.repe-card.selected {
+  border: 3px solid #27ae60;
+  box-shadow: 0 0 8px #27ae60;
+  opacity: 0.85;
+}
+.repe-card .repe-cantidad {
+  position: absolute;
+  bottom: 3px;
+  right: 3px;
+  background: #c8a415;
+  color: #000;
+  font-size: 10px;
+  font-weight: bold;
+  border-radius: 20px;
+  padding: 2px 5px;
+  z-index: 2;
+}
+.repe-card .repe-selector {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  background: #27ae60;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: white;
+  z-index: 2;
+}
+.repe-card .c-top {
+  height: 60%;
+}
+.repe-card .c-bot {
+  height: 40%;
+}
 </style>
 
 <div id="app">
@@ -100,7 +214,7 @@ body{font-family:var(--font-sans);background:transparent;font-size:14px;}
   <div class="home-title">Mundial 2026</div>
   <div class="home-sub">Álbum Panini Oficial • 48 Selecciones • USA·CAN·MEX</div>
   <div class="stats-row">
-    <div class="stat-box"><div class="stat-num" id="h-sobres">1045</div><div class="stat-lab">📦 Sobres</div></div>
+    <div class="stat-box"><div class="stat-num" id="h-sobres">140</div><div class="stat-lab">📦 Sobres</div></div>
     <div class="stat-box"><div class="stat-num" id="h-col">0</div><div class="stat-lab">🃏 Cromos</div></div>
     <div class="stat-box"><div class="stat-num" id="h-pct">0%</div><div class="stat-lab">✅ Álbum</div></div>
     <div class="stat-box"><div class="stat-num" id="h-rep">0</div><div class="stat-lab">🔁 Repes</div></div>
@@ -108,14 +222,13 @@ body{font-family:var(--font-sans);background:transparent;font-size:14px;}
   <div>
     <button class="btn-gold" onclick="showSobre()">📦 Abrir Sobre</button>
     <button class="btn-ghost" onclick="showAlbum()">📖 Ver Álbum</button>
-    <button class="btn-ghost" onclick="showIntercambio()">🔄 Intercambiar con IA</button>
-
+    <button class="btn-ghost" onclick="showIntercambio()">🔄 Intercambiar Cromos</button>
+    <button class="btn-ghost" onclick="verRepetidos()">🃏 Ver repetidos</button>
     <button class="btn-ghost" onclick="generarPromo()">🎁 Generar Promo</button>
     <button class="btn-ghost" onclick="canjearPromo()">🎟️ Canjear Promo</button>
-
   </div>
   <div style="font-size:11px;color:var(--color-text-secondary);margin-top:10px;">
-    <span id="h-pages">112 páginas · 740 cromos</span>
+    <span id="h-pages">112 páginas · 980 cromos</span>
   </div>
 </div>
 
@@ -151,7 +264,7 @@ body{font-family:var(--font-sans);background:transparent;font-size:14px;}
     <h2>📖 Álbum Mundial 2026</h2>
   </div>
   <div class="prog-wrap"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
-  <div class="prog-txt" id="prog-txt">0 / 740 cromos (0%)</div>
+  <div class="prog-txt" id="prog-txt">0 / 980 cromos (0%)</div>
   <div class="group-jumps" id="group-jumps"></div>
   <div class="page-nav">
     <button class="pnav-btn" id="btn-prev" onclick="prevPage()">◀</button>
@@ -166,7 +279,7 @@ body{font-family:var(--font-sans);background:transparent;font-size:14px;}
 <div id="intercambio" class="screen">
   <div class="alb-header">
     <button class="back-btn" onclick="showHome()">← Volver</button>
-    <h2>🔄 Intercambio con IA</h2>
+    <h2>🔄 Intercambiar Cromos</h2>
   </div>
   <div id="trade-body"></div>
 </div>
@@ -316,7 +429,7 @@ buildPages();
 
 // ============ STATE ============
 let STATE = {
-  sobres: 1045,
+  sobres: 140,  // CAMBIADO: de 1045 a 140 sobres iniciales
   collected: new Set(),
   dupes: {}, // id -> cantidad de repetidas (tarjetas de intercambio)
   pending: [],
@@ -331,7 +444,7 @@ function loadState(){
     const raw = localStorage.getItem(SAVE_KEY);
     if(raw){
       const d = JSON.parse(raw);
-      STATE.sobres = d.sobres ?? 1045;
+      STATE.sobres = d.sobres ?? 140;  // CAMBIADO: valor por defecto a 140
       STATE.collected = new Set(d.collected || []);
       STATE.dupes = d.dupes || {};
     }
@@ -472,6 +585,70 @@ function totalDupes(){
   return Object.values(STATE.dupes).reduce((a,b)=>a+b,0);
 }
 
+// ============ VER REPETIDOS (MODAL) ============
+function verRepetidos(){
+  const dupesList = [];
+  for(const [id, cantidad] of Object.entries(STATE.dupes)){
+    if(cantidad > 0){
+      const sticker = stickerMap[id];
+      if(sticker){
+        dupesList.push({sticker, cantidad});
+      }
+    }
+  }
+  
+  if(dupesList.length === 0){
+    alert('🎉 No tienes cromos repetidos. ¡Abre sobres para conseguir intercambios!');
+    return;
+  }
+  
+  const totalRepes = totalDupes();
+  
+  // Crear modal
+  const modal = document.createElement('div');
+  modal.className = 'modal-overlay';
+  modal.innerHTML = `
+    <div class="modal-content">
+      <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">✖</button>
+      <h3>🃏 Cromos Repetidos</h3>
+      <div class="modal-stats">
+        📊 Total: <span>${totalRepes}</span> intercambios<br>
+        🎴 Tipos distintos: ${dupesList.length}
+      </div>
+      <div class="repe-grid" id="repe-grid"></div>
+      <div style="text-align:center; margin-top:15px;">
+        <button class="btn-ghost" onclick="this.closest('.modal-overlay').remove()" style="padding:8px 20px;">Cerrar</button>
+      </div>
+    </div>
+  `;
+  
+  document.body.appendChild(modal);
+  
+  const grid = modal.querySelector('#repe-grid');
+  dupesList.forEach(({sticker, cantidad}) => {
+    const tc = sticker.team;
+    const col = getColor(tc);
+    const flag = getFlag(tc);
+    const typeTxt = sticker.type==='player'?'JUGADOR':sticker.type==='escudo'?'ESCUDO':sticker.type==='star'?'★ ESTRELLA':sticker.type==='stadium'?'ESTADIO':sticker.type==='uniforme'?'UNIFORME':sticker.type==='captain'?'CAPITÁN':'ESPECIAL';
+    
+    const div = document.createElement('div');
+    div.className = 'repe-card' + (sticker.special ? ' spec' : '');
+    div.innerHTML = `
+      <div class="repe-cantidad">×${cantidad}</div>
+      <div class="c-top" style="background:${col}22;border-bottom:1px solid ${col}44">
+        <span class="c-flag">${flag}</span>
+        <span style="font-size:6px;color:${col};display:block;">${typeTxt}</span>
+      </div>
+      <div class="c-bot">
+        <div class="c-num">#${ALL_STICKERS.findIndex(s=>s.id===sticker.id)+1}</div>
+        <div class="c-name">${sticker.label}</div>
+        <div class="c-team">${getName(tc)}</div>
+      </div>
+    `;
+    grid.appendChild(div);
+  });
+}
+
 // ============ ALBUM RENDERING ============
 let currentSpread = 0;
 const TOTAL_SPREADS = Math.ceil(PAGES.length/2);
@@ -596,9 +773,7 @@ function buildPageEl(page, pageNum){
   return div;
 }
 
-// ============ INTERCAMBIO CON IA ============
-// give:[min,max] cromos que te ofrece | costPerCard: repetidas por cromo
-// allowSpecial: puede ofrecer estrellas/especiales | weight: prob. de que te toque
+// ============ INTERCAMBIO ============
 const AI_LEVELS = [
   {key:'novato',       name:'Novato',     emoji:'🐣', color:'#9e9e9e', give:[1,1], costPerCard:1, allowSpecial:false, weight:36},
   {key:'amateur',      name:'Amateur',    emoji:'🎽', color:'#4caf50', give:[1,2], costPerCard:1, allowSpecial:false, weight:28},
@@ -609,6 +784,7 @@ const AI_LEVELS = [
 const AI_NAMES = ['Carlos','Ana','Luca','Sofía','Diego','Mia','Hiro','Omar','Leo','Nina','Pablo','Yuki','Kofi','Sara','Mateo','Bruno','Ivan','Lía'];
 
 let currentTrade = null;
+let selectedDupes = new Set();
 
 function rndRange(a,b){return a+Math.floor(Math.random()*(b-a+1));}
 
@@ -624,7 +800,7 @@ function makeOffer(){
   const name = AI_NAMES[Math.floor(Math.random()*AI_NAMES.length)];
   const missing = ALL_STICKERS.filter(s=>!STATE.collected.has(s.id));
   let pool = lvl.allowSpecial ? missing : missing.filter(s=>!s.special);
-  if(pool.length===0) pool = missing; // si sólo quedan especiales, permítelos
+  if(pool.length===0) pool = missing;
   const give = Math.min(rndRange(lvl.give[0],lvl.give[1]), pool.length);
   const offered = [];
   const used = new Set();
@@ -637,26 +813,71 @@ function makeOffer(){
   return {lvl,name,offered,cost:offered.length*lvl.costPerCard};
 }
 
-function tradeCromoHTML(s){
-  const tc=s.team,col=getColor(tc),flag=getFlag(tc);
-  const typeTxt = s.type==='player'?'JUGADOR':s.type==='escudo'?'ESCUDO':s.type==='star'?'★ ESTRELLA':s.type==='stadium'?'ESTADIO':s.type==='uniforme'?'UNIFORME':s.type==='captain'?'CAPITÁN':'ESPECIAL';
-  return `<div class="cromo-card ${s.special?'spec':''} shown"><div class="c-top" style="background:${col}22;border-bottom:1px solid ${col}44"><span class="c-flag">${flag}</span><span style="font-size:7px;color:${col}">${typeTxt}</span></div><div class="c-bot"><div class="c-num">#${ALL_STICKERS.indexOf(s)+1}</div><div class="c-name">${s.label}</div><div class="c-team">${getName(tc)}</div></div></div>`;
+function getDupesList(){
+  const list = [];
+  for(const [id, cantidad] of Object.entries(STATE.dupes)){
+    if(cantidad > 0){
+      const sticker = stickerMap[id];
+      if(sticker){
+        list.push({sticker, cantidad, id});
+      }
+    }
+  }
+  return list;
 }
 
-function showIntercambio(){
-  currentTrade = makeOffer();
+function toggleDupeSelection(id){
+  if(selectedDupes.has(id)){
+    selectedDupes.delete(id);
+  } else {
+    selectedDupes.add(id);
+  }
   renderTrade();
-  showScreen('intercambio');
 }
 
-function nuevoRival(){
-  currentTrade = makeOffer();
-  renderTrade();
+function confirmarIntercambio(){
+  if(!currentTrade) return;
+  const totalSelected = selectedDupes.size;
+  if(totalSelected < currentTrade.cost){
+    alert(`❌ Necesitas seleccionar ${currentTrade.cost} cromos repetidos para este intercambio. Has seleccionado ${totalSelected}.`);
+    return;
+  }
+  if(totalSelected > currentTrade.cost){
+    alert(`⚠️ Has seleccionado ${totalSelected} cromos, pero solo necesitas ${currentTrade.cost}. Selecciona exactamente ${currentTrade.cost}.`);
+    return;
+  }
+  
+  for(const id of selectedDupes){
+    STATE.dupes[id]--;
+    if(STATE.dupes[id] <= 0) delete STATE.dupes[id];
+  }
+  
+  STATE.justPasted = new Set();
+  currentTrade.offered.forEach(s=>{ 
+    STATE.collected.add(s.id); 
+    STATE.justPasted.add(s.id); 
+  });
+  
+  const ganados = currentTrade.offered.length;
+  saveState();
+  updateHomeStats();
+  
+  const body = document.getElementById('trade-body');
+  body.innerHTML = `<div class="trade-msg">✅ ¡Intercambio completado!<br>Conseguiste <b>${ganados}</b> cromo(s) nuevo(s) para tu álbum.<br><small>Te quedan ${totalDupes()} repetidas.</small></div>
+    <div style="text-align:center">
+      <button class="btn-paste" onclick="showAlbum()">📖 Ver álbum</button>
+      <button class="btn-more" onclick="nuevoRival()">🔄 Nuevo intercambio</button>
+    </div>`;
+  setTimeout(()=>{
+    STATE.justPasted.clear();
+    selectedDupes.clear();
+  },1500);
 }
 
 function renderTrade(){
   const body = document.getElementById('trade-body');
-  const dupes = totalDupes();
+  const dupesTotal = totalDupes();
+  const dupesList = getDupesList();
 
   if(!currentTrade || currentTrade.offered.length===0){
     body.innerHTML = `<div class="trade-msg">🎉 ¡Este jugador no tiene cromos nuevos para ti!<br><small>Quizá ya casi completaste el álbum.</small></div>
@@ -665,64 +886,91 @@ function renderTrade(){
   }
 
   const lvl = currentTrade.lvl;
-  const cards = currentTrade.offered.map(tradeCromoHTML).join('');
-  const canAfford = dupes >= currentTrade.cost;
-  const hint = dupes===0 ? '<div class="trade-stat" style="color:#e0573a">Abre sobres para conseguir repetidas y poder intercambiar.</div>' : '';
+  const cards = currentTrade.offered.map(s=>tradeCromoHTML(s)).join('');
+  const necesita = currentTrade.cost;
+  
+  let repetidosHTML = '';
+  if(dupesList.length === 0){
+    repetidosHTML = `<div style="text-align:center; padding:20px; color:#999;">📭 No tienes cromos repetidos. ¡Abre sobres para conseguir intercambios!</div>`;
+  } else {
+    repetidosHTML = `<div class="repe-grid" style="max-height:250px;">`;
+    dupesList.forEach(({sticker, cantidad, id}) => {
+      const tc = sticker.team;
+      const col = getColor(tc);
+      const flag = getFlag(tc);
+      const typeTxt = sticker.type==='player'?'JUGADOR':sticker.type==='escudo'?'ESCUDO':sticker.type==='star'?'★ ESTRELLA':sticker.type==='stadium'?'ESTADIO':sticker.type==='uniforme'?'UNIFORME':sticker.type==='captain'?'CAPITÁN':'ESPECIAL';
+      const isSelected = selectedDupes.has(id);
+      repetidosHTML += `
+        <div class="repe-card ${isSelected ? 'selected' : ''}" onclick="toggleDupeSelection('${id}')">
+          <div class="repe-cantidad">×${cantidad}</div>
+          <div class="repe-selector">${isSelected ? '✓' : ''}</div>
+          <div class="c-top" style="background:${col}22;border-bottom:1px solid ${col}44">
+            <span class="c-flag">${flag}</span>
+            <span style="font-size:6px;color:${col};display:block;">${typeTxt}</span>
+          </div>
+          <div class="c-bot">
+            <div class="c-num">#${ALL_STICKERS.findIndex(s=>s.id===sticker.id)+1}</div>
+            <div class="c-name">${sticker.label}</div>
+            <div class="c-team">${getName(tc)}</div>
+          </div>
+        </div>
+      `;
+    });
+    repetidosHTML += `</div>`;
+  }
+
+  const seleccionados = selectedDupes.size;
+  const puedeCanjear = seleccionados === necesita && dupesTotal >= necesita;
 
   body.innerHTML = `
-    <div class="trade-stat">🔁 Tus tarjetas de intercambio (repetidas): <b>${dupes}</b></div>
-    ${hint}
+    <div class="trade-stat">🔁 Tus tarjetas de intercambio (repetidas): <b>${dupesTotal}</b></div>
+    
     <div class="ai-card" style="border-color:${lvl.color}">
       <div class="ai-badge" style="background:${lvl.color}">${lvl.emoji} ${lvl.name}</div>
       <div class="ai-name">${currentTrade.name}</div>
       <div class="ai-sub">quiere intercambiar contigo</div>
     </div>
-    <div class="trade-label">Te ofrece:</div>
+    
+    <div class="trade-label">🌟 Te ofrece (${currentTrade.offered.length} cromo(s)):</div>
     <div class="reveal-grid">${cards}</div>
-    <div class="trade-cost">A cambio de <b>${currentTrade.cost}</b> de tus repetidas</div>
-    <div class="reveal-btns" style="text-align:center">
-      <button class="btn-paste" onclick="aceptarTrade()" ${canAfford?'':'disabled'}>${canAfford?'✅ Aceptar trato':'❌ Te faltan repetidas'}</button>
-      <button class="btn-more" onclick="nuevoRival()">🔄 Otro jugador</button>
-    </div>`;
+    
+    <div class="trade-cost" style="margin-top:20px;">💰 Necesitas dar <b>${necesita}</b> de tus repetidas (${seleccionados}/${necesita} seleccionados)</div>
+    
+    <div class="trade-label" style="margin-top:15px;">📋 MIS REPETIDOS (haz clic para seleccionar):</div>
+    ${repetidosHTML}
+    
+    <div class="reveal-btns" style="text-align:center; margin-top:15px;">
+      <button class="btn-paste" onclick="confirmarIntercambio()" ${!puedeCanjear ? 'disabled' : ''}>${puedeCanjear ? '✅ Intercambiar' : `❌ Selecciona ${necesita} repetidos`}</button>
+      <button class="btn-more" onclick="nuevoRival()">🔄 Buscar otro jugador</button>
+    </div>
+  `;
 }
 
-function consumeDupes(n){
-  const ids = [];
-  Object.keys(STATE.dupes).forEach(id=>{ for(let i=0;i<STATE.dupes[id];i++) ids.push(id); });
-  // baraja para tomar repetidas al azar
-  for(let i=ids.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[ids[i],ids[j]]=[ids[j],ids[i]];}
-  for(let k=0;k<n && k<ids.length;k++){
-    const id=ids[k];
-    STATE.dupes[id]--;
-    if(STATE.dupes[id]<=0) delete STATE.dupes[id];
-  }
+function tradeCromoHTML(s){
+  const tc=s.team,col=getColor(tc),flag=getFlag(tc);
+  const typeTxt = s.type==='player'?'JUGADOR':s.type==='escudo'?'ESCUDO':s.type==='star'?'★ ESTRELLA':s.type==='stadium'?'ESTADIO':s.type==='uniforme'?'UNIFORME':s.type==='captain'?'CAPITÁN':'ESPECIAL';
+  return `<div class="cromo-card ${s.special?'spec':''} shown"><div class="c-top" style="background:${col}22;border-bottom:1px solid ${col}44"><span class="c-flag">${flag}</span><span style="font-size:7px;color:${col}">${typeTxt}</span></div><div class="c-bot"><div class="c-num">#${ALL_STICKERS.indexOf(s)+1}</div><div class="c-name">${s.label}</div><div class="c-team">${getName(tc)}</div></div></div>`;
 }
 
-function aceptarTrade(){
-  if(!currentTrade) return;
-  if(totalDupes() < currentTrade.cost) return;
-  consumeDupes(currentTrade.cost);
-  STATE.justPasted = new Set();
-  currentTrade.offered.forEach(s=>{ STATE.collected.add(s.id); STATE.justPasted.add(s.id); });
-  const ganados = currentTrade.offered.length;
-  saveState();
-  updateHomeStats();
-  const body = document.getElementById('trade-body');
-  body.innerHTML = `<div class="trade-msg">✅ ¡Trato hecho!<br>Conseguiste <b>${ganados}</b> cromo(s) nuevo(s) para tu álbum.<br><small>Te quedan ${totalDupes()} repetidas.</small></div>
-    <div style="text-align:center">
-      <button class="btn-paste" onclick="showAlbum()">📖 Ver álbum</button>
-      <button class="btn-more" onclick="nuevoRival()">🔄 Otro intercambio</button>
-    </div>`;
-  setTimeout(()=>STATE.justPasted.clear(),1500);
+function showIntercambio(){
+  selectedDupes.clear();
+  currentTrade = makeOffer();
+  renderTrade();
+  showScreen('intercambio');
 }
 
+function nuevoRival(){
+  selectedDupes.clear();
+  currentTrade = makeOffer();
+  renderTrade();
+}
 
-// ============ PROMO CODES (LÍMITE DIARIO) ============
+// ============ PROMO CODES ============
 const PROMO_KEY = 'wc26_promo_last_date';
 
 function getTodayStr() {
   const d = new Date();
-  return d.toISOString().split('T')[0]; // YYYY-MM-DD
+  return d.toISOString().split('T')[0];
 }
 
 function generarPromo(){
@@ -758,10 +1006,9 @@ function canjearPromo(){
     return;
   }
 
-  // ✅ Canje exitoso: dar 1 sobre
   STATE.sobres++;
   localStorage.setItem(PROMO_KEY, today);
-  localStorage.removeItem('wc26_lastpromo'); // eliminar código usado
+  localStorage.removeItem('wc26_lastpromo');
   saveState();
   updateHomeStats();
 
